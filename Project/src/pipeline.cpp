@@ -45,12 +45,18 @@ Pipeline::Pipeline(std::vector<Operation*> operations, bool is_debug): _operatio
     // empty on purpose
 }
 
-std::vector<Circle> Pipeline::detect(const cv::Mat& image) const {
+std::vector<Circle> Pipeline::detect(const std::string& name,
+                                     const cv::Mat& image) const {
     // preprocessing steps
     cv::Mat copy(image);
 
     for (const auto* operation: _operations) {
         operation->process(copy, copy);
+
+        if (_is_debug) {
+            cv::imshow(name, copy);
+            cv::waitKey(0);
+        }
     }
 
     // circle detection algorithm

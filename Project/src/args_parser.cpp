@@ -73,6 +73,10 @@ bool DetectArgs(const ArgsDict& dict,
   return true;
 }
 
+bool HasFlag(const ArgsDict& args, const std::string& arg) {
+    return args.find(arg) != args.end();
+}
+
 std::string GetString(const ArgsDict& args, const std::string& arg) {
     const auto& values = args.at(arg);
 

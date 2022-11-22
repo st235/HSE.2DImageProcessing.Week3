@@ -1,6 +1,7 @@
 #ifndef PIPELINE_H
 #define PIPELINE_H
 
+#include <string>
 #include <vector>
 
 #include "circle.h"
@@ -22,7 +23,8 @@ private:
 public:
   explicit Pipeline(bool is_debug = false);
   Pipeline(std::vector<Operation*> operations, bool is_debug = false);
-  std::vector<Circle> detect(const cv::Mat& image) const;
+  std::vector<Circle> detect(const std::string& name,
+                             const cv::Mat& image) const;
 
   ~Pipeline() = default;
 };

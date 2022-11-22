@@ -20,6 +20,8 @@ bool DetectArgs(const ArgsDict& dict,
                 const std::unordered_set<std::string>& compulsory_flags,
                 const std::unordered_set<std::string>& optional_flags = {});
 
+bool HasFlag(const ArgsDict& args, const std::string& arg);
+
 std::string GetString(const ArgsDict& args, const std::string& arg);
 
 std::vector<std::string> GetStringList(const ArgsDict& args, const std::string& arg);
