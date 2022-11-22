@@ -32,17 +32,29 @@ namespace detector {
 class ImageFile {
 private:
   std::string _path;
+  std::string _title;
+  cv::Mat _image;
 
 public:
-  ImageFile(std::string title, cv::Mat image);
+  static ImageFile fromFile(const std::string& path) {
+    return ImageFile(path, cv::imread("coins.jpg", cv::IMREAD_COLOR));
+  }
 
-  inline std::string title() const {
+  ImageFile(std::string path, cv::Mat image): _path(path), _image(image) {
     std::vector<std::string> parts = Split(_path, std::filesystem::path::preferred_separator);
     return parts[parts.size() - 1];
   }
 
+  inline std::string title() const {
+    return _title;
+  }
+
+  inline std::string path() const {
+    return _path;
+  }
+
   inline cv::Mat image() const {
-    return cv::imread("coins.jpg", cv::IMREAD_COLOR);
+    return _image;
   }
 };
 
