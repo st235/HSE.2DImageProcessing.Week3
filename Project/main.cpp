@@ -3,11 +3,11 @@
 #include <cmath>
 #include<opencv2/opencv.hpp>
 
-#include "pipeline.h"
-#include "circle.h"
-
 #include "args_parser.h"
+#include "circle.h"
 #include "file_utils.h"
+#include "pipeline.h"
+#include "report.h"
 
 void DrawResult(const std::string& image,
                 const std::vector<detector::Circle>& circles) {
@@ -25,11 +25,14 @@ void OnImages(const std::vector<std::string>& images,
               const std::string& output,
               bool is_debug,
               bool show_result) {
+    report::Report report(output);
     detector::Pipeline pipeline(is_debug /* is_debug */);
 
     for (const auto& image: images) {
         cv::Mat img = cv::imread(image, cv::IMREAD_COLOR);
+
         const auto& circles = pipeline.detect(image, img);
+        report.appendCircles(image, circles);
 
         if (show_result) {
             DrawResult(image, circles);
@@ -77,16 +80,19 @@ int main(int argc, char* argv[]) {
             const auto& image = args::GetString(args, "-d");
             const auto& output = args::GetString(args, "-o");
             bool should_show_result = args::HasFlag(args, "-r");
+
             OnDebug(image, output, should_show_result);
         } else if (args::DetectArgs(args, { "-f", "-o" }, { "-r" })) {
             const auto& folder = args::GetString(args, "-f");
             const auto& output = args::GetString(args, "-o");
             bool should_show_result = args::HasFlag(args, "-r");
+
             OnFolder(folder, output, should_show_result);
         } else if (args::DetectArgs(args, { args::FLAG_TITLE_UNSPECIFIED, "-o" }, { "-r" })) {
             const auto& images = args::GetStringList(args, args::FLAG_TITLE_UNSPECIFIED);
             const auto& output = args::GetString(args, "-o");
             bool should_show_result = args::HasFlag(args, "-r");
+
             OnImages(images, output, false /* is_debug */, should_show_result);
         } else {
             std::cout << "Cannot find suitable command for the given flags." << std::endl;

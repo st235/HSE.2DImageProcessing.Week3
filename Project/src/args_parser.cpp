@@ -31,7 +31,9 @@ ArgsDict ParseArgs(int argc, char* argv[]) {
         std::string argument(argv[index]);
 
         if (IsFlag(argument)) {
-            result[prev_flag] = values;
+            if (prev_flag != FLAG_TITLE_UNSPECIFIED || !values.empty()) {
+                result[prev_flag] = values;
+            }
 
             if (result.find(argument) != result.end()) {
                 // found a duplicate argument
@@ -47,20 +49,25 @@ ArgsDict ParseArgs(int argc, char* argv[]) {
         index++;
     }
 
-    result[prev_flag] = values;
+    if (prev_flag != FLAG_TITLE_UNSPECIFIED || !values.empty()) {
+        result[prev_flag] = values;
+    }
+
     return result;
 }
 
 bool DetectArgs(const ArgsDict& dict, 
                 const std::unordered_set<std::string>& compulsory_flags,
                 const std::unordered_set<std::string>& optional_flags) {
+  for (const auto& comp_flag: compulsory_flags) {
+    if (dict.find(comp_flag) == dict.end()) {
+        return false;
+    }
+  }
+
   for (const auto& item: dict) {
     const auto& flag = item.first;
     const auto& values = item.second;
-
-    if (values.empty()) {
-        continue;
-    }
 
     bool is_compulsory_key = (compulsory_flags.find(flag) != compulsory_flags.end());
     bool is_optional_key = (optional_flags.find(flag) != optional_flags.end());
