@@ -84,6 +84,19 @@ bool HasFlag(const ArgsDict& args, const std::string& arg) {
     return args.find(arg) != args.end();
 }
 
+int GetInt(const ArgsDict& args, const std::string& arg, int default_val) {
+    if (!HasFlag(args, arg)) {
+        return default_val;
+    }
+
+    const auto& values = args.at(arg);
+    if (values.size() != 1) {
+        throw std::runtime_error("Cannot extract one value for flag " + arg);
+    }
+
+    return std::stoi(values[0]);
+}
+
 std::string GetString(const ArgsDict& args, const std::string& arg) {
     const auto& values = args.at(arg);
 

@@ -26,7 +26,7 @@ void OnHelp() {
     std::cout << "Descrption: Shows help." << std::endl;
     std::cout << std::endl;
 
-    std::cout << "2. app -d image.png -o output.txt [-r show result image]" << std::endl;
+    std::cout << "2. app -d image.png -o output.txt [-r show result image] [-s specific debug step]" << std::endl;
     std::cout << "Descrption: Debug the given image. Will show the process step-by-step." << std::endl;
     std::cout << std::endl;
 
@@ -42,9 +42,11 @@ void OnHelp() {
 void OnImages(const std::vector<std::string>& images,
               const std::string& output,
               bool is_debug,
+              int debug_step,
               bool show_result) {
     report::Report report(output);
-    detector::Pipeline pipeline(is_debug /* is_debug */);
+    detector::Pipeline pipeline(is_debug /* is_debug */,
+                                debug_step /* debug_step */);
 
     for (const auto& image: images) {
         cv::Mat img = cv::imread(image, cv::IMREAD_COLOR);
@@ -62,6 +64,7 @@ void OnImages(const std::vector<std::string>& images,
 
 void OnDebug(const std::string& image,
             const std::string& output,
+            int debug_step,
             bool show_result) {
     if (!files::IsFile(image)) {
          std::cout << '\"' << image << '\"' << " is not an image." << std::endl;
@@ -71,7 +74,7 @@ void OnDebug(const std::string& image,
     std::vector<std::string> images;
     images.push_back(image);
 
-    OnImages(images, output, true /* is_debug */, show_result);
+    OnImages(images, output, true /* is_debug */, debug_step, show_result);
 }
 
 void OnFolder(const std::string& folder,
@@ -85,7 +88,7 @@ void OnFolder(const std::string& folder,
     std::vector<std::string> files;
     files::ListFiles(folder, files);
 
-    OnImages(files, output, false /* is_debug */, show_result);
+    OnImages(files, output, false /* is_debug */, -1 /* debug_step */, show_result);
 }
 
 int main(int argc, char* argv[]) {
@@ -94,12 +97,14 @@ int main(int argc, char* argv[]) {
 
         if (args::DetectArgs(args, { "-h" })) {
             OnHelp();
-        } else if (args::DetectArgs(args, { "-d", "-o" }, { "-r" })) {
+        } else if (args::DetectArgs(args, { "-d", "-o" }, { "-r", "-s" })) {
             const auto& image = args::GetString(args, "-d");
             const auto& output = args::GetString(args, "-o");
             bool should_show_result = args::HasFlag(args, "-r");
 
-            OnDebug(image, output, should_show_result);
+            int debug_step = args::GetInt(args, "-s", -1 /* default_val */);
+
+            OnDebug(image, output, debug_step, should_show_result);
         } else if (args::DetectArgs(args, { "-f", "-o" }, { "-r" })) {
             const auto& folder = args::GetString(args, "-f");
             const auto& output = args::GetString(args, "-o");
@@ -111,7 +116,7 @@ int main(int argc, char* argv[]) {
             const auto& output = args::GetString(args, "-o");
             bool should_show_result = args::HasFlag(args, "-r");
 
-            OnImages(images, output, false /* is_debug */, should_show_result);
+            OnImages(images, output, false /* is_debug */, -1 /* debug_step */, should_show_result);
         } else {
             std::cout << "Cannot find suitable command for the given flags." << std::endl;
         }

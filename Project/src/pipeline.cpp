@@ -30,18 +30,21 @@ double standart_deviation(const std::vector<cv::Vec3f>& arr) {
 
 namespace detector {
 
-Pipeline::Pipeline(bool is_debug):
+const int Pipeline::NO_SPECIFIC_DEBUG_STEP = -1;
+
+Pipeline::Pipeline(bool is_debug,
+                   int debug_step):
     Pipeline({ 
         new GreyScaleOperation(),
         new SmoothOperation(),
         new DetectEdgesOperation(),
         new ThresholdOperation(),
         new MorphologyOperation()
-    }, is_debug) {
+    }, is_debug, debug_step) {
     // empty on purpose
 }
 
-Pipeline::Pipeline(std::vector<Operation*> operations, bool is_debug): _operations(operations), _is_debug(is_debug) {
+Pipeline::Pipeline(std::vector<Operation*> operations, bool is_debug, int debug_step): _operations(operations), _is_debug(is_debug), _debug_step(debug_step) {
     // empty on purpose
 }
 
@@ -50,13 +53,16 @@ std::vector<Circle> Pipeline::detect(const std::string& name,
     // preprocessing steps
     cv::Mat copy(image);
 
+    int step = 1;
     for (const auto* operation: _operations) {
         operation->process(copy, copy);
 
-        if (_is_debug) {
+        if (_is_debug && (_debug_step == Pipeline::NO_SPECIFIC_DEBUG_STEP || _debug_step == step)) {
             cv::imshow(name, copy);
             cv::waitKey(0);
         }
+
+        step++;
     }
 
     // circle detection algorithm

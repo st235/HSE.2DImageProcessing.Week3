@@ -14,7 +14,8 @@ void Report::appendCircles(const std::string& image_name,
 
     int index = 1;
     for (const auto& circle: circles) {
-        _file << "#" << std::setfill('0') << std::setw(3) << index << ". ";
+        _file << "#" << std::setfill('0') << std::setw(3) << std::right << index << ". ";
+        _file << std::setfill(' ');
         _file << "Center at {" << circle.x() << ", " << circle.y() << "}. ";
         _file << "Radius is " << circle.radius() << "." << std::endl;
 

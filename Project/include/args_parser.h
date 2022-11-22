@@ -22,6 +22,8 @@ bool DetectArgs(const ArgsDict& dict,
 
 bool HasFlag(const ArgsDict& args, const std::string& arg);
 
+int GetInt(const ArgsDict& args, const std::string& arg, int default_val = -1);
+
 std::string GetString(const ArgsDict& args, const std::string& arg);
 
 std::vector<std::string> GetStringList(const ArgsDict& args, const std::string& arg);
