@@ -18,7 +18,25 @@ void DrawResult(const std::string& image,
 }
 
 void OnHelp() {
-    std::cout << "On Help" << std::endl;
+    std::cout << "Hey hey, my fellow classmate :wave:" << std::endl;
+    std::cout << "To use the app you should call with one of these argument: " << std::endl;
+    std::cout << std::endl;
+
+    std::cout << "1. app -h" << std::endl;
+    std::cout << "Descrption: Shows help." << std::endl;
+    std::cout << std::endl;
+
+    std::cout << "2. app -d image.png -o output.txt [-r show result image]" << std::endl;
+    std::cout << "Descrption: Debug the given image. Will show the process step-by-step." << std::endl;
+    std::cout << std::endl;
+
+    std::cout << "3. app -f folder -o output.txt [-r show result image]" << std::endl;
+    std::cout << "Descrption: Processes all images in the folder and subfolders." << std::endl;
+    std::cout << std::endl;
+
+    std::cout << "4. app image1.png image2.png ... imageN.png -o output.txt [-r show result image]" << std::endl;
+    std::cout << "Descrption: Processes the given images list." << std::endl;
+    std::cout << std::endl;
 }
 
 void OnImages(const std::vector<std::string>& images,
