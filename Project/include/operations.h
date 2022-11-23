@@ -42,10 +42,28 @@ public:
   ~ThresholdOperation() override = default;
 };
 
-class MorphologyOperation: public Operation {
+class DilateOperation: public Operation {
 public:
   void process(const cv::Mat& in, cv::Mat& out) const override;
-  ~MorphologyOperation() override = default;
+  ~DilateOperation() override = default;
+};
+
+class ErodeOperation: public Operation {
+public:
+  void process(const cv::Mat& in, cv::Mat& out) const override;
+  ~ErodeOperation() override = default;
+};
+
+class OpenOperation: public Operation {
+public:
+  void process(const cv::Mat& in, cv::Mat& out) const override;
+  ~OpenOperation() override = default;
+};
+
+class CloseOperation: public Operation {
+public:
+  void process(const cv::Mat& in, cv::Mat& out) const override;
+  ~CloseOperation() override = default;
 };
 
 } // namespace detector

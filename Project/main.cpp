@@ -17,28 +17,6 @@ void DrawResult(const std::string& image,
     cv::waitKey(0);
 }
 
-void OnHelp() {
-    std::cout << "Hey hey, my fellow classmate :wave:" << std::endl;
-    std::cout << "To use the app you should call with one of these argument: " << std::endl;
-    std::cout << std::endl;
-
-    std::cout << "1. app -h" << std::endl;
-    std::cout << "Descrption: Shows help." << std::endl;
-    std::cout << std::endl;
-
-    std::cout << "2. app -d image.png -o output.txt [-r show result image] [-s specific debug step]" << std::endl;
-    std::cout << "Descrption: Debug the given image. Will show the process step-by-step." << std::endl;
-    std::cout << std::endl;
-
-    std::cout << "3. app -f folder -o output.txt [-r show result image]" << std::endl;
-    std::cout << "Descrption: Processes all images in the folder and subfolders." << std::endl;
-    std::cout << std::endl;
-
-    std::cout << "4. app image1.png image2.png ... imageN.png -o output.txt [-r show result image]" << std::endl;
-    std::cout << "Descrption: Processes the given images list." << std::endl;
-    std::cout << std::endl;
-}
-
 void OnImages(const std::vector<std::string>& images,
               const std::string& output,
               bool is_debug,
@@ -54,9 +32,7 @@ void OnImages(const std::vector<std::string>& images,
         const auto& circles = pipeline.detect(image, img);
         report.appendCircles(image, circles);
 
-        if (show_result) {
-            DrawResult(image, circles);
-        }
+        DrawResult(image, circles);
     }
 
     cv::destroyAllWindows();
@@ -95,9 +71,7 @@ int main(int argc, char* argv[]) {
     try {
         args::ArgsDict args = args::ParseArgs(argc, argv);
 
-        if (args::DetectArgs(args, { "-h" })) {
-            OnHelp();
-        } else if (args::DetectArgs(args, { "-d", "-o" }, { "-r", "-s" })) {
+        if (args::DetectArgs(args, { "-d", "-o" }, { "-s" })) {
             const auto& image = args::GetString(args, "-d");
             const auto& output = args::GetString(args, "-o");
             bool should_show_result = args::HasFlag(args, "-r");
