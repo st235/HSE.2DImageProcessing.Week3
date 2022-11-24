@@ -107,6 +107,22 @@ std::string GetString(const ArgsDict& args, const std::string& arg) {
     return values[0];
 }
 
+std::string GetString(const ArgsDict& args, 
+                      const std::string& arg,
+                      const std::string& default_value) {
+    if (!HasFlag(args, arg)) {
+        return default_value;
+    }
+
+    const auto& values = args.at(arg);
+
+    if (values.size() != 1) {
+        throw std::runtime_error("Cannot extract one value for flag " + arg);
+    }
+
+    return values[0];
+}
+
 std::vector<std::string> GetStringList(const ArgsDict& args, const std::string& arg) {
     return args.at(arg);
 }

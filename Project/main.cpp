@@ -9,88 +9,72 @@
 #include "pipeline.h"
 #include "report.h"
 
-void DrawResult(const std::string& image,
-                const std::vector<detector::Circle>& circles) {
-    cv::Mat result = cv::imread(image);
+void DrawResult(const std::string& file_name,
+                const std::vector<detector::Circle>& circles,
+                const std::string& output_directory) {
+    cv::Mat result = cv::imread(file_name);
     detector::Circle::drawAll(result, circles);
-    cv::imshow(image, result);
-    cv::waitKey(0);
-}
 
-void OnImages(const std::vector<std::string>& images,
-              const std::string& output,
-              bool is_debug,
-              int debug_step,
-              bool show_result) {
-    report::Report report(output);
-    detector::Pipeline pipeline(is_debug /* is_debug */,
-                                debug_step /* debug_step */);
+    std::string image_name;
 
-    for (const auto& image: images) {
-        cv::Mat img = cv::imread(image, cv::IMREAD_COLOR);
+    if (!output_directory.empty()) {
+        const auto& final_file_name = files::GetFileName(file_name) + "_report" + files::GetFileExtension(file_name);
 
-        const auto& circles = pipeline.detect(image, img);
-        report.appendCircles(image, circles);
-
-        DrawResult(image, circles);
+        image_name = files::Join({ files::GetAbsolutePath(output_directory),
+                                   final_file_name });
+    } else {
+        image_name = files::ReplaceFilename(file_name, 
+                                            files::GetFileName(file_name) + "_report");
     }
 
+    cv::imwrite(image_name, result);
+    cv::imshow(file_name, result);
+    cv::waitKey(0);
     cv::destroyAllWindows();
 }
 
-void OnDebug(const std::string& image,
-            const std::string& output,
-            int debug_step,
-            bool show_result) {
-    if (!files::IsFile(image)) {
-         std::cout << '\"' << image << '\"' << " is not an image." << std::endl;
-        return;
+void OnFiles(const std::vector<std::string>& raw_files,
+             const std::string& output_directory,
+             bool is_debug) {
+    if (!output_directory.empty() && !files::IsDirectory(output_directory)) {
+        throw std::runtime_error(output_directory + " is not a directory.");
     }
 
-    std::vector<std::string> images;
-    images.push_back(image);
-
-    OnImages(images, output, true /* is_debug */, debug_step, show_result);
-}
-
-void OnFolder(const std::string& folder,
-              const std::string& output,
-              bool show_result) {
-    if (!files::IsDirectory(folder)) {
-        std::cout << '\"' << folder << '\"' << " is not a directory." << std::endl;
-        return;
-    }
+    detector::Pipeline pipeline(is_debug /* is_debug */);
 
     std::vector<std::string> files;
-    files::ListFiles(folder, files);
 
-    OnImages(files, output, false /* is_debug */, -1 /* debug_step */, show_result);
+    for (const auto& raw_file: raw_files) {
+        if (files::IsDirectory(raw_file)) {
+            files::ListFiles(raw_file, files);
+        } else {
+            files.push_back(raw_file);
+        }
+    }
+
+    for (const auto& file_name: files) {
+        cv::Mat image = cv::imread(file_name, cv::IMREAD_COLOR);
+
+        if (image.empty()) {
+            // not image, skipping
+            continue;
+        }
+
+        const auto& circles = pipeline.detect(file_name, image);
+        DrawResult(file_name, circles, output_directory);
+    }
 }
 
 int main(int argc, char* argv[]) {
     try {
         args::ArgsDict args = args::ParseArgs(argc, argv);
 
-        if (args::DetectArgs(args, { "-d", "-o" }, { "-s" })) {
-            const auto& image = args::GetString(args, "-d");
-            const auto& output = args::GetString(args, "-o");
-            bool should_show_result = args::HasFlag(args, "-r");
+        if (args::DetectArgs(args, { args::FLAG_TITLE_UNSPECIFIED }, { "-d", "-o" })) {
+            const auto& files = args::GetStringList(args, args::FLAG_TITLE_UNSPECIFIED);
+            const auto& output_directory = args::GetString(args, "-o", "");
+            const auto& is_debug = args::HasFlag(args, "-d");
 
-            int debug_step = args::GetInt(args, "-s", -1 /* default_val */);
-
-            OnDebug(image, output, debug_step, should_show_result);
-        } else if (args::DetectArgs(args, { "-f", "-o" }, { "-r" })) {
-            const auto& folder = args::GetString(args, "-f");
-            const auto& output = args::GetString(args, "-o");
-            bool should_show_result = args::HasFlag(args, "-r");
-
-            OnFolder(folder, output, should_show_result);
-        } else if (args::DetectArgs(args, { args::FLAG_TITLE_UNSPECIFIED, "-o" }, { "-r" })) {
-            const auto& images = args::GetStringList(args, args::FLAG_TITLE_UNSPECIFIED);
-            const auto& output = args::GetString(args, "-o");
-            bool should_show_result = args::HasFlag(args, "-r");
-
-            OnImages(images, output, false /* is_debug */, -1 /* debug_step */, should_show_result);
+            OnFiles(files, output_directory, is_debug);
         } else {
             std::cout << "Cannot find suitable command for the given flags." << std::endl;
         }

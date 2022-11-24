@@ -4,6 +4,32 @@ namespace files {
 
 namespace fs = std::filesystem;
 
+std::string Join(const std::vector<std::string>& paths) {
+    std::string result;
+
+    uint32_t index = 0;
+    for (const auto& path: paths) {
+        if (index > 0) {
+            result += fs::path::preferred_separator;
+        }
+
+        result += path;
+        index++;
+    }
+
+    return result;
+}
+
+std::string GetAbsolutePath(const std::string& path) {
+    const fs::path filepath(path);
+
+    if (filepath.is_relative()) {
+        return fs::canonical(filepath);
+    }
+
+    return fs::absolute(filepath);
+}
+
 bool IsFile(const std::string& path) {
     const fs::path filepath(path);
     std::error_code error_code;
@@ -11,6 +37,25 @@ bool IsFile(const std::string& path) {
         return true;
     }
     return false;
+}
+
+std::string GetFileName(const std::string& path) {
+    const fs::path filepath(path);
+    return filepath.stem();
+}
+
+std::string GetFileExtension(const std::string& path) {
+    const fs::path filepath(path);
+    return filepath.extension();
+}
+
+std::string ReplaceFilename(const std::string& path, const std::string new_name) {
+    fs::path filepath(path);
+    const auto& extension = filepath.extension();
+    filepath.replace_filename(new_name);
+    std::string new_filepath(filepath.c_str());
+    new_filepath += extension;
+    return new_filepath;
 }
 
 bool IsDirectory(const std::string& path) {

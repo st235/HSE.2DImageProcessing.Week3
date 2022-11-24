@@ -24,7 +24,12 @@ bool HasFlag(const ArgsDict& args, const std::string& arg);
 
 int GetInt(const ArgsDict& args, const std::string& arg, int default_val = -1);
 
-std::string GetString(const ArgsDict& args, const std::string& arg);
+std::string GetString(const ArgsDict& args,
+                      const std::string& arg);
+
+std::string GetString(const ArgsDict& args, 
+                      const std::string& arg,
+                      const std::string& default_value);
 
 std::vector<std::string> GetStringList(const ArgsDict& args, const std::string& arg);
 

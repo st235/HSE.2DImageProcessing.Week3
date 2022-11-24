@@ -62,10 +62,7 @@ double standart_deviation(const std::vector<detector::Circle>& arr) {
 
 namespace detector {
 
-const int Pipeline::NO_SPECIFIC_DEBUG_STEP = -1;
-
-Pipeline::Pipeline(bool is_debug,
-                   int debug_step):
+Pipeline::Pipeline(bool is_debug):
     Pipeline({ 
         new GreyScaleOperation(),
         new SmoothOperation(),
@@ -77,11 +74,11 @@ Pipeline::Pipeline(bool is_debug,
         new DilateOperation()
         // // new MorphologyOperation(),
         // // new ThresholdOperation()
-    }, is_debug, debug_step) {
+    }, is_debug) {
     // empty on purpose
 }
 
-Pipeline::Pipeline(std::vector<Operation*> operations, bool is_debug, int debug_step): _operations(operations), _is_debug(is_debug), _debug_step(debug_step) {
+Pipeline::Pipeline(std::vector<Operation*> operations, bool is_debug): _operations(operations), _is_debug(is_debug) {
     // empty on purpose
 }
 
@@ -90,33 +87,26 @@ std::vector<Circle> Pipeline::detect(const std::string& name,
     // preprocessing steps
     cv::Mat copy(image);
 
-    int step = 1;
     for (const auto* operation: _operations) {
         operation->process(copy, copy);
 
-        if (_is_debug && (_debug_step == Pipeline::NO_SPECIFIC_DEBUG_STEP || _debug_step == step)) {
+        if (_is_debug) {
             cv::imshow(name, copy);
             cv::waitKey(0);
+            cv::destroyAllWindows();
         }
-
-        step++;
     }
 
     int max_radius = std::min(image.rows, image.cols) / 2;
 
     // circle detection algorithm
     std::vector<cv::Vec3f> raw_circles;
-    cv::HoughCircles(copy, raw_circles, cv::HoughModes::HOUGH_GRADIENT_ALT, 2 /* dp */, 30 /* min distance */, 300 /* param 1 */, 0.7 /* param 2 */, 25 /* min_radius */, max_radius);
+    cv::HoughCircles(copy, raw_circles, cv::HoughModes::HOUGH_GRADIENT_ALT, 2 /* dp */, 30 /* min distance */, 300 /* param 1 */, 0.6 /* param 2 */, 25 /* min_radius */, max_radius);
 
     std::unordered_map<std::pair<uint32_t, uint32_t>, std::vector<uint32_t>, pair_hash> circle_groups;
 
     for (const auto& item: raw_circles) {
         const auto& pair = std::make_pair<uint32_t, uint32_t>(item[0], item[1]);
-
-        // if (circle_groups.find(pair) == circle_groups.end()) {
-        //     circle_groups[pair] = std::vector();
-        // }
-
         circle_groups[pair].push_back(item[2]);
     }
 
