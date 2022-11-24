@@ -1,13 +1,12 @@
 #include <iostream>
 #include <vector>
-#include <cmath>
 #include<opencv2/opencv.hpp>
 
 #include "args_parser.h"
 #include "circle.h"
 #include "file_utils.h"
 #include "pipeline.h"
-#include "report.h"
+#include "reporter.h"
 
 void DrawResult(const std::string& file_name,
                 const std::vector<detector::Circle>& circles,
@@ -40,6 +39,7 @@ void OnFiles(const std::vector<std::string>& raw_files,
         throw std::runtime_error(output_directory + " is not a directory.");
     }
 
+    report::Reporter reporter;
     detector::Pipeline pipeline(is_debug /* is_debug */);
 
     std::vector<std::string> files;
@@ -61,6 +61,7 @@ void OnFiles(const std::vector<std::string>& raw_files,
         }
 
         const auto& circles = pipeline.detect(file_name, image);
+        reporter.reportDetectedCircles(file_name, circles);
         DrawResult(file_name, circles, output_directory);
     }
 }
