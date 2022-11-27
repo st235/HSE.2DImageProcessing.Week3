@@ -33,11 +33,11 @@ public:
     Metric(const Metric& that);
     Metric& operator=(const Metric& that);
 
-    double precision();
-    double recall();
-    double f1Score();
+    double precision() const;
+    double recall() const;
+    double f1Score() const;
 
-    Metric operator+(const Metric& that);
+    Metric operator+(const Metric& that) const;
 
     inline uint32_t tp() const { return _true_positive; }
     inline uint32_t tn() const { return _true_negative; }

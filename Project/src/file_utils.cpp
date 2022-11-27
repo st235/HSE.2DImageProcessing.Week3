@@ -85,4 +85,4 @@ void ListFiles(const std::string& dir, std::vector<std::string>& result) {
     }
 }
 
-}
+} // namespace utils

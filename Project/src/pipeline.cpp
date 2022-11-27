@@ -4,15 +4,12 @@
 
 namespace {
 
-struct pair_hash {
+struct PAIR_HASH {
     template <class T1, class T2>
-    std::size_t operator () (const std::pair<T1,T2> &p) const {
-        auto h1 = std::hash<T1>{}(p.first);
-        auto h2 = std::hash<T2>{}(p.second);
-
-        // Mainly for demonstration purposes, i.e. works but is overly simple
-        // In the real world, use sth. like boost.hash_combine
-        return h1 ^ h2;  
+    std::size_t operator()(const std::pair<T1,T2> &p) const {
+        auto code = std::hash<T1>{}(p.first);
+        code ^= std::hash<T2>{}(p.second);
+        return code;
     }
 };
 
@@ -47,7 +44,7 @@ double median(const std::vector<detector::Circle>& arr) {
 }
 
 double standart_deviation(const std::vector<detector::Circle>& arr) {
-    double mv = mean(arr);
+    double mv = median(arr);
 
     double overall = 0;
 
@@ -72,8 +69,6 @@ Pipeline::Pipeline(bool is_debug):
         new OpenOperation(),
         new DetectEdgesOperation(),
         new DilateOperation()
-        // // new MorphologyOperation(),
-        // // new ThresholdOperation()
     }, is_debug) {
     // empty on purpose
 }
@@ -101,9 +96,9 @@ std::vector<Circle> Pipeline::detect(const std::string& name,
 
     // circle detection algorithm
     std::vector<cv::Vec3f> raw_circles;
-    cv::HoughCircles(copy, raw_circles, cv::HoughModes::HOUGH_GRADIENT_ALT, 2 /* dp */, 30 /* min distance */, 300 /* param 1 */, 0.6 /* param 2 */, 25 /* min_radius */, max_radius);
+    cv::HoughCircles(copy, raw_circles, cv::HoughModes::HOUGH_GRADIENT_ALT, 2 /* dp */, 30 /* min distance */, 300 /* param 1 */, 0.6 /* param 2 */, 30 /* min_radius */, max_radius);
 
-    std::unordered_map<std::pair<uint32_t, uint32_t>, std::vector<uint32_t>, pair_hash> circle_groups;
+    std::unordered_map<std::pair<uint32_t, uint32_t>, std::vector<uint32_t>, PAIR_HASH> circle_groups;
 
     for (const auto& item: raw_circles) {
         const auto& pair = std::make_pair<uint32_t, uint32_t>(item[0], item[1]);
@@ -145,6 +140,6 @@ std::vector<Circle> Pipeline::detect(const std::string& name,
     return circles;
 }
 
-} // namespace detecto 
+} // namespace detector
 
 

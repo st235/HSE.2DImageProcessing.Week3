@@ -35,21 +35,21 @@ MetricsConfig::Metric& MetricsConfig::Metric::operator=(const Metric& that) {
   return *this;
 }
 
-double MetricsConfig::Metric::precision() {
+double MetricsConfig::Metric::precision() const {
     return static_cast<double>(_true_positive) / (_true_positive + _false_positive);
 }
 
-double MetricsConfig::Metric::recall() {
+double MetricsConfig::Metric::recall() const {
     return static_cast<double>(_true_positive) / (_true_positive + _false_negative);
 }
 
-double MetricsConfig::Metric::f1Score() {
+double MetricsConfig::Metric::f1Score() const {
     double precision = this->precision();
     double recall = this->recall();
     return 2.0 * precision * recall / (precision + recall);
 }
 
-MetricsConfig::Metric MetricsConfig::Metric::operator+(const Metric& that) {
+MetricsConfig::Metric MetricsConfig::Metric::operator+(const Metric& that) const {
     return Metric(_true_positive + that._true_positive /* _true_positive */,
                   _true_negative + that._true_negative /* _true_negative */,
                   _false_positive + that._false_positive /* _false_positive */,
