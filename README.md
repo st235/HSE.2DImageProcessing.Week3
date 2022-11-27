@@ -375,6 +375,12 @@ recall              0.920792
 f1                  0.944162
 ```
 
+### Detection examples
+
+| Sample 9 | Sample 14 |
+| --- | --- |
+| ![Detected Coins 9](./Images/detection.sample.1.jpg)| ![Detected Coins 14](Images/detection.sample.2.jpg) |
+
 ### License
 
 ```text
