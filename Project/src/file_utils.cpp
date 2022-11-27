@@ -1,6 +1,6 @@
 #include "file_utils.h"
 
-namespace files {
+namespace utils {
 
 namespace fs = std::filesystem;
 
@@ -47,6 +47,11 @@ std::string GetFileName(const std::string& path) {
 std::string GetFileExtension(const std::string& path) {
     const fs::path filepath(path);
     return filepath.extension();
+}
+
+std::string GetFileNameWithExtension(const std::string& path) {
+    const fs::path filepath(path);
+    return filepath.filename();
 }
 
 std::string ReplaceFilename(const std::string& path, const std::string new_name) {

@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-namespace files {
+namespace utils {
 
 std::string Join(const std::vector<std::string>& paths);
 
@@ -17,6 +17,8 @@ std::string GetFileName(const std::string& path);
 
 std::string GetFileExtension(const std::string& path);
 
+std::string GetFileNameWithExtension(const std::string& path);
+
 std::string ReplaceFilename(const std::string& path, const std::string new_name);
 
 bool IsDirectory(const std::string& path);
@@ -24,6 +26,6 @@ bool IsDirectory(const std::string& path);
 void ListFiles(const std::string& dir,
                std::vector<std::string>& result);
 
-} // namespace files
+} // namespace utils
 
 #endif // FILE_UTILS_H
