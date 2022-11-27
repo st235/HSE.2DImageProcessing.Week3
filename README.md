@@ -2,11 +2,13 @@
 
 Hello my fellow classmates 👋
 
+Thank you for reading this introduction document! Hopefully, I would be able to keep you interested 😅
+
 ## Build
 
-You have to have [OpenCV installed](https://docs.opencv.org/4.x/d7/d9f/tutorial_linux_install.html) on your computer.
+To build the project you have to have [OpenCV installed](https://docs.opencv.org/4.x/d7/d9f/tutorial_linux_install.html) on your computer. 
 
-From `src` folder:
+When everything is ready you need to navigate to `src` folder in your terminal and execute the following chain of commands.
 
 ```
 mkdir build
@@ -16,32 +18,31 @@ cmake ..
 make -j7
 ```
 
-_P.S.: The executable file will be inside `bin` directory._
+The build will be finished shortly after calling the command and you can expect to see the executable file inside `bin` directory. Hopefully, the file is there and you are ready to move to the next step!
 
 ## Command
 
-To run the command one may find this information about command line arguments handful.
-The command looks like the code below:
+Generally, the application accepts a few command line arguments. If there was a _help_ command it would output something similar to the text below.
 
 ```bash
 ./bin/CoinDetector image1 image_folder1 image2 ... imageN [-o output prefix] [-c metrics config] [-d debug]
 ```
 
-Basically, the command consists of two parts: images list and additional arguments:
+However, it can be a bit confusing. Let me breifly explain what these arguments do. Basically, the invocation consists of two important groups: an images list and additional arguments.
 
-1. Command accepts list of images. An entry of the list may be either an image file or a folder with images. If the entry is an images folder then all images will be recursively extracted from within it.
+1. **Images list**: just a list of either image files or folders with images. If an entry is an images folder then all images are recursively extracted from within it.
 
-2. Arguments are optional. The arguments are described in the table below.
+2. **Additional arguments**: all arguments are optional. If you decide to use them read thoroughly the infromation in the table below.
 
 |Argument|Desciption|
 |-----|-----|
-|-d| Debug flag: if specified then the application displays additional processing steps, otherwise only result image with detected circles will be shown. |
-|-o| Output files prefix: specifies the final directory for output images. If not specified then the final images will be saved in the application folder. |
-|-c| Config metrics file. If specified then the passed images will be tested against this config and prediction metrics will be calculated. Config should contain information about coins in the given images. To create a custom config see [Config section](Config). |
+|-d| *Debug flag*: if specified then the application displays additional processing steps, otherwise only result image with detected circles will be shown. |
+|-o| *Output files prefix*: specifies the final directory for output images. If not specified then the final images will be saved in the application folder, ie the folder from where the application is located. |
+|-c| *Config metrics file*: if specified then the passed images will be tested against this config and prediction metrics will be calculated. Config should contain information about coins in the given images. To create a custom config see [Config section](Config). |
 
 ### Usage example
 
-A few examples of the command.
+To give you a better context on how to use the application I provided a few usage examples.
 
 - Folder with images + metrics config
 
@@ -69,14 +70,16 @@ A few examples of the command.
 
 ## Config
 
-Config describes the given images set.
-The metrics config can be composed using a few simple rules:
-- Every images that you want to test should be described in the config
-- All images are described separately
-- Between images section should be an empty line
-- Image section should distinctly identify the image by image id and followed circles
-- Image id is __image name__ + __image extension__
-- Circle should be described as a triple of x and y coordinates and radius
+Config describes the given images set. When the images set is tested against config all images from the set should be on the config, however, the config may have more images descriptors than the set has. If the image is not found on the set [runtime_error](https://en.cppreference.com/w/cpp/error/runtime_error) is rised.
+
+To make your own config or understand better how the original config is composed you may find these set of rules quite useful:
+
+- Every image that you want to test should be described in the config;
+- Every image has its own descriptor/config section;
+- There should be an empty line between sections;
+- A section should distinctly identify the image using image id followed by a circles list;
+- *image id* is __image name__ + __image extension__, for examples, for the field `./a/b/image.png` the id is `image.png`;
+- Every circle is a triple of x and y coordinates and a radius.
 
 These rules can be visualised in the following way:
 
@@ -97,7 +100,7 @@ x2,y2,r2
 xN,yN,rN
 ```
 
-The example of the config is:
+You can see how these rules are applied looking at [the given config](./Samples/circles.txt):
 
 ```text
 01.jpg
@@ -125,20 +128,21 @@ The example of the config is:
 ...
 ```
 
-Config for algorithm can be found in [Samples folder](./Samples/circles.txt).
+## Test Samples
 
-### Test Samples
+There are 20 test sample images that form the test set. All coins in the set are are distinguihsable from background, well illuminated, and do not have extreme points views.
 
-Test samples contain 20 images of coins: the coins are distinguihsable from background.
-You may find all of them in [the samples folder](./Samples/).
+To give you a better understanding of the tests' nature you can see the example.
 
 ![Example](./Samples/03.jpg)
 
-### Algorithm
+You may take a look at the rest of the test set by looking at [the samples folder](./Samples/).
 
-Algorithm consists of several steps.
+## Algorithm
 
-To see the same steps run the following command:
+The algorithm used in the project is not that sophisticated and can be represented as a chain of several steps.
+
+*Note: To reproduce the same behaviour run the following command:*
 
 ```bash
 ./bin/CoinsDetector ../../Samples/13.jpg  -c ../../Samples/circles.txt -o ../../Images -d
@@ -146,39 +150,43 @@ To see the same steps run the following command:
 
 | Step | Image  | Description  |
 | ------- | --- | --- |
-| 0. Original image | ![Original](./Samples/13.jpg) | Unmodified image |
-| 1. Read | ![Grayscale](./Images/1.grayscale.png) | Convert the given image to grayscale |
-| 2. Smoothing | ![Smoothing](./Images/2.blur.png) | Smooths the image a bit using Sobel operator to reduce noise |
-| 3.1. Edge extraction | | Canny algorithm to detect edges |
-| 3.2. Thresholding | ![Smoothing](./Images/3.canny.png) | Otsu thresholding to make binary image |
-| 4. Morphological: close | ![Smoothing](./Images/4.close.png) | Dilation to combine all edges into a single circle + erosion to return the circles back to original sizes |
-| 5. Morphological: open | ![Smoothing](./Images/5.open.png) | Erosion to remove the noise and dilation to return the circles back to original sizes |
-| 6. Edge detection | ![Smoothing](./Images/6.edges.png) | Canny edge detection again to leave edges only |
-| 7. Morphological: dilate | ![Smoothing](./Images/7.dilate.png) | Dilation to thicker the edges |
-| 8. Hough Circles | ![Smoothing](./Images/8.circles.png) | Hough circles transform to detect circles |
+| 0. Original image | ![Original](./Samples/13.jpg) | Unmodified image. This is not an actual step. I put it here to show the original image. |
+| 1. Read the image | ![Grayscale](./Images/1.grayscale.png) | Converts the given image to grayscale. |
+| 2. Smoothing | ![Smoothing](./Images/2.blur.png) | Smooths the image using Sobel operator to reduce noise. |
+| 3.1. Edge detection | | Canny algorithm to detect edges. |
+| 3.2. Thresholding | ![Thresholding](./Images/3.canny.png) | Otsu thresholding to make a binary image. |
+| 4. Morphological: close | ![Close](./Images/4.close.png) | Dilation to combine all edges into a single circle + erosion to return the circles back to original sizes. |
+| 5. Morphological: open | ![Open](./Images/5.open.png) | Erosion to remove the noise and dilation to return the circles back to original sizes. |
+| 6. Edge detection | ![Edge detection](./Images/6.edges.png) | Canny edge detection again to leave edges only. |
+| 7. Morphological: dilate | ![Dilate](./Images/7.dilate.png) | Dilation to thicker the edges. |
+| 8. Hough Circles | ![Hough Circles](./Images/8.circles.png) | Hough circles transform to detect circles. |
 
 
-### Model Results
+## Model Results
 
-The command to validate the results is
+And the most interesting part: the results part.
+
+*Note: To reproduce the same behaviour run the following command:*
 
 ```text
 ./bin/CoinsDetector ../../Samples -c ../../Samples/circles.txt
 ```
 
-Overall there are __101 coins__ in the given dataset.
-
-Metrics for the given test set are
+Overall there are __101 coins__ in the given test set. The metrics are:
 
 |Metric|Value|
 |---|---|
 |True positive|93|
-|True negative|0 **it is expected as we don't have such group**|
+|True negative|0 **the value is expected as we don't have such a group in our dataset**|
 |False positive|3|
 |False negative|8|
 |Precission|0.96875|
 |Recall|0.920792|
 |F1 Score|0.944162|
+
+*As was agreed in the lecture, the model detects a few circles incorrectly and keeps the score below 100% perfect.*
+
+You can also see a similar report in your terminal when you run the application using your own equipment.
 
 Raw report:
 
@@ -375,13 +383,17 @@ recall              0.920792
 f1                  0.944162
 ```
 
-### Detection examples
+### Detected circles example
+
+Wow, if you read this far you're a real hero. This section just shows a few final result.
 
 | Sample 9 | Sample 14 |
 | --- | --- |
 | ![Detected Coins 9](./Images/detection.sample.1.jpg)| ![Detected Coins 14](Images/detection.sample.2.jpg) |
 
-### License
+*Hopefully, you've enjoyed the reading the document. Thank you and good luck!*
+
+## License
 
 ```text
 MIT License

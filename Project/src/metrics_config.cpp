@@ -111,7 +111,7 @@ MetricsConfig::Metric MetricsConfig::getConfusionMetric(
     const std::string& image,
     const std::vector<detector::Circle>& circles) const {
     if (_images_lookup.find(image) == _images_lookup.end()) {
-        throw std::runtime_error(image + " was not found.");
+        throw std::runtime_error(image + " was not found on the config.");
     }
 
     std::unordered_set<detector::Circle, detector::Circle::Hash> expected_circles;
@@ -159,10 +159,6 @@ MetricsConfig::Metric MetricsConfig::getConfusionMetric(const ImagesLUT& lut) co
     for (const auto& item: lut) {
         const auto& image = item.first;
         const auto& circles = item.second;
-
-        if (_images_lookup.find(image) != _images_lookup.find(image)) {
-            continue;
-        }
 
         const auto& metric = getConfusionMetric(image, circles);
         final_metric = final_metric + metric;
