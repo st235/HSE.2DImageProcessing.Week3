@@ -172,17 +172,17 @@ And the most interesting part: the results part.
 ./bin/CoinsDetector ../../Samples -c ../../Samples/circles.txt
 ```
 
-Overall there are __101 coins__ in the given test set. The metrics are:
+Overall there are __154 coins__ in the given test set. The metrics are:
 
 |Metric|Value|
 |---|---|
-|True positive|93|
+|True positive|135|
 |True negative|0 **the value is expected as we don't have such a group in our dataset**|
-|False positive|3|
-|False negative|8|
-|Precission|0.96875|
-|Recall|0.920792|
-|F1 Score|0.944162|
+|False positive|9|
+|False negative|19|
+|Precission|0.9375|
+|Recall|0.876623|
+|F1 Score|0.90604|
 
 *As was agreed in the lecture, the model detects a few circles incorrectly and keeps the score below 100% perfect.*
 
@@ -367,30 +367,112 @@ Detected: 9     circles.
 #008. Center{x=840, y=838}, Radius{165}.
 #009. Center{x=852, y=180}, Radius{153}.
 
+21.jpg                                            
+File path: ../../Samples/21.jpg                              
+Detected: 1     circles.
+#001. Center{x=478, y=244}, Radius{235}.
+
+22.jpg                                            
+File path: ../../Samples/22.jpg                              
+Detected: 2     circles.
+#001. Center{x=412, y=156}, Radius{62}.
+#002. Center{x=202, y=136}, Radius{104}.
+
+23.jpg                                            
+File path: ../../Samples/23.jpg                              
+Detected: 15    circles.
+#001. Center{x=640, y=258}, Radius{77}.
+#002. Center{x=334, y=96}, Radius{58}.
+#003. Center{x=490, y=96}, Radius{67}.
+#004. Center{x=330, y=264}, Radius{64}.
+#005. Center{x=614, y=90}, Radius{67}.
+#006. Center{x=504, y=258}, Radius{75}.
+#007. Center{x=308, y=450}, Radius{79}.
+#008. Center{x=230, y=100}, Radius{48}.
+#009. Center{x=304, y=654}, Radius{103}.
+#010. Center{x=198, y=264}, Radius{67}.
+#011. Center{x=640, y=452}, Radius{86}.
+#012. Center{x=178, y=450}, Radius{84}.
+#013. Center{x=158, y=658}, Radius{110}.
+#014. Center{x=508, y=444}, Radius{83}.
+#015. Center{x=516, y=658}, Radius{90}.
+
+24.png                                            
+File path: ../../Samples/24.png                              
+Detected: 19    circles.
+#001. Center{x=250, y=42}, Radius{45}.
+#002. Center{x=150, y=296}, Radius{38}.
+#003. Center{x=448, y=298}, Radius{45}.
+#004. Center{x=346, y=124}, Radius{38}.
+#005. Center{x=48, y=216}, Radius{38}.
+#006. Center{x=444, y=216}, Radius{46}.
+#007. Center{x=444, y=124}, Radius{38}.
+#008. Center{x=150, y=218}, Radius{45}.
+#009. Center{x=50, y=44}, Radius{45}.
+#010. Center{x=350, y=218}, Radius{45}.
+#011. Center{x=444, y=42}, Radius{38}.
+#012. Center{x=252, y=218}, Radius{45}.
+#013. Center{x=48, y=128}, Radius{38}.
+#014. Center{x=148, y=122}, Radius{38}.
+#015. Center{x=252, y=122}, Radius{39}.
+#016. Center{x=50, y=296}, Radius{45}.
+#017. Center{x=148, y=42}, Radius{45}.
+#018. Center{x=348, y=42}, Radius{38}.
+#019. Center{x=250, y=296}, Radius{45}.
+
+25.jpg                                            
+File path: ../../Samples/25.jpg                              
+Detected: 5     circles.
+#001. Center{x=268, y=248}, Radius{57}.
+#002. Center{x=454, y=130}, Radius{68}.
+#003. Center{x=390, y=252}, Radius{57}.
+#004. Center{x=290, y=88}, Radius{83}.
+#005. Center{x=116, y=154}, Radius{96}.
+
+26.webp                                           
+File path: ../../Samples/26.webp                             
+Detected: 6     circles.
+#001. Center{x=514, y=290}, Radius{34}.
+#002. Center{x=460, y=194}, Radius{38}.
+#003. Center{x=460, y=100}, Radius{34}.
+#004. Center{x=364, y=194}, Radius{34}.
+#005. Center{x=264, y=196}, Radius{41}.
+#006. Center{x=264, y=98}, Radius{38}.
+
 P.S.: Calculating metrics may take a while.
 
-The test set has 101 coins.
+The test set has 154 coins.
 
 Confusion matrix values:
-true positive       93                  
+true positive       135                 
 true negative       0                   
-false positive      3                   
-false negative      8                   
+false positive      9                   
+false negative      19                  
 
 Prediction metrics:
-precision           0.96875             
-recall              0.920792            
-f1                  0.944162
+precision           0.9375              
+recall              0.876623            
+f1                  0.90604
 ```
 
 ### Detected circles example
 
-Wow, if you read this far you're a real hero. This section just shows a few final result.
+This section just shows a few final result.
 
 | Sample 9 | Sample 14 |
 | --- | --- |
 | ![Detected Coins 9](./Images/detection.sample.1.jpg)| ![Detected Coins 14](Images/detection.sample.2.jpg) |
 
+### Images where the model fails
+
+My model fails to detect coins that are located on noisy background (non-monotonic).
+
+| Sample 2 | Sample 4 |
+| --- | --- |
+| ![Detected Coins 2](./Images/invalid_02.jpg)| ![Detected Coins 4](./Images/invalid_04.webp) |
+
+
+Wow, if you read this far you're a real hero. 
 *Hopefully, you've enjoyed the reading the document. Thank you and good luck!*
 
 ## License
