@@ -62,16 +62,17 @@ namespace detector {
 Pipeline::Pipeline(bool is_debug):
     Pipeline({ 
         new GreyScaleOperation(),
-        new SmoothOperation(5 /* kernel */, 0 /* sigma */),
-        new DetectEdgesOperation(200 /* threshold 1 */, 225 /* threshold 2 */, 5 /* kernel */, true /* L2gradient */),
-        new ThresholdOperation(225 /* threshold */, 255 /* max_value */),
-        new CloseOperation(20 /* structuring_element_size */),
-        new OpenOperation(50 /* structuring_element_size */),
-        new DetectEdgesOperation(200 /* threshold 1 */, 225 /* threshold 2 */, 5 /* kernel */, true /* L2gradient */),
-        new DilateOperation(15 /* structuring_element_size */)
+        new SmoothOperation(3 /* kernel */, 0 /* sigma */),
+        new DetectEdgesOperation(20 /* threshold 1 */, 100 /* threshold 2 */, 3 /* kernel */, true /* L2gradient */),
+        new ThresholdOperation(255 /* threshold */, 255 /* max_value */),
+        new DilateOperation(10 /* structuring_element_size */),
+        new FindContourOperation(),
+        new CloseOperation(10 /* structuring_element_size */),
+        new OpenOperation(4 /* structuring_element_size */),
+        new DilateOperation(2 /* structuring_element_size */)
     }, is_debug) {
     // empty on purpose
-}
+} 
 
 Pipeline::Pipeline(std::vector<Operation*> operations, bool is_debug): _operations(operations), _is_debug(is_debug) {
     // empty on purpose
@@ -96,7 +97,7 @@ std::vector<Circle> Pipeline::detect(const std::string& name,
 
     // circle detection algorithm
     std::vector<cv::Vec3f> raw_circles;
-    cv::HoughCircles(copy, raw_circles, cv::HoughModes::HOUGH_GRADIENT_ALT, 2 /* dp */, 30 /* min distance */, 300 /* param 1 */, 0.6 /* param 2 */, 30 /* min_radius */, max_radius);
+    cv::HoughCircles(copy, raw_circles, cv::HoughModes::HOUGH_GRADIENT_ALT, 1.5 /* dp */, 30 /* min distance */, 300 /* param 1 */, 0.6 /* param 2 */, 30 /* min_radius */, max_radius);
 
     std::unordered_map<std::pair<uint32_t, uint32_t>, std::vector<uint32_t>, PAIR_HASH> circle_groups;
 

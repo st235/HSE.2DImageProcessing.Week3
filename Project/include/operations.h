@@ -137,6 +137,7 @@ public:
   ~ErodeOperation() override = default;
 };
 
+// Erosion followed by Dilation
 class OpenOperation: public Operation {
 private:
   uint32_t _structuring_element_size;
@@ -157,6 +158,7 @@ public:
   ~OpenOperation() override = default;
 };
 
+// Dilation followed by Erosion
 class CloseOperation: public Operation {
 private:
   uint32_t _structuring_element_size;
@@ -175,6 +177,32 @@ public:
   }
 
   ~CloseOperation() override = default;
+};
+
+class FindContourOperation: public Operation {
+public:
+  FindContourOperation() {
+    // empty on purpose
+  }
+
+  FindContourOperation(const FindContourOperation& that) = delete;
+  FindContourOperation& operator=(const FindContourOperation& that) = delete;
+
+  void process(const cv::Mat& in, cv::Mat& out) const override {
+    std::vector<std::vector<cv::Point>> contours;
+    std::vector<cv::Vec4i> hierarchy;
+    findContours(in, contours, hierarchy, cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE);
+    out = cv::Mat::zeros(in.size(), CV_8U);
+
+    for(size_t i = 0; i < contours.size(); i++) {
+        if (hierarchy[i][2] >= 0 || hierarchy[i][3] >= 0) {
+          cv::drawContours(out, contours, static_cast<uint32_t>(i), 
+                           cv::Scalar(255), 5, cv::LINE_8, hierarchy, 0);
+        }
+    }
+  }
+
+  ~FindContourOperation() override = default;
 };
 
 } // namespace detector
