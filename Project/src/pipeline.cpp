@@ -62,13 +62,13 @@ namespace detector {
 Pipeline::Pipeline(bool is_debug):
     Pipeline({ 
         new GreyScaleOperation(),
-        new SmoothOperation(),
-        new DetectEdgesOperation(),
-        new ThresholdOperation(),
-        new CloseOperation(),
-        new OpenOperation(),
-        new DetectEdgesOperation(),
-        new DilateOperation()
+        new SmoothOperation(5 /* kernel */, 0 /* sigma */),
+        new DetectEdgesOperation(200 /* threshold 1 */, 225 /* threshold 2 */, 5 /* kernel */, true /* L2gradient */),
+        new ThresholdOperation(225 /* threshold */, 255 /* max_value */),
+        new CloseOperation(20 /* structuring_element_size */),
+        new OpenOperation(50 /* structuring_element_size */),
+        new DetectEdgesOperation(200 /* threshold 1 */, 225 /* threshold 2 */, 5 /* kernel */, true /* L2gradient */),
+        new DilateOperation(15 /* structuring_element_size */)
     }, is_debug) {
     // empty on purpose
 }
