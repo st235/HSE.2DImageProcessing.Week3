@@ -195,10 +195,8 @@ public:
     out = cv::Mat::zeros(in.size(), CV_8U);
 
     for(size_t i = 0; i < contours.size(); i++) {
-        if (hierarchy[i][2] >= 0 || hierarchy[i][3] >= 0) {
-          cv::drawContours(out, contours, static_cast<uint32_t>(i), 
-                           cv::Scalar(255), 5, cv::LINE_8, hierarchy, 0);
-        }
+        cv::drawContours(out, contours, static_cast<uint32_t>(i), 
+                          cv::Scalar(255), 4, cv::LINE_8, hierarchy, 0);
     }
   }
 

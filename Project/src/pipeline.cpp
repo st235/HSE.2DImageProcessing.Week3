@@ -66,10 +66,18 @@ Pipeline::Pipeline(bool is_debug):
         new DetectEdgesOperation(20 /* threshold 1 */, 100 /* threshold 2 */, 3 /* kernel */, true /* L2gradient */),
         new ThresholdOperation(255 /* threshold */, 255 /* max_value */),
         new DilateOperation(10 /* structuring_element_size */),
+        new OpenOperation(3 /* structuring_element_size */),
         new FindContourOperation(),
+        new SmoothOperation(3 /* kernel */, 0 /* sigma */),
         new CloseOperation(10 /* structuring_element_size */),
-        new OpenOperation(4 /* structuring_element_size */),
-        new DilateOperation(2 /* structuring_element_size */)
+        // new CloseOperation(10 /* structuring_element_size */),
+        // new CloseOperation(10 /* structuring_element_size */),
+        // new OpenOperation(4 /* structuring_element_size */),
+        // new FindContourOperation(),
+        // new DetectEdgesOperation(200 /* threshold 1 */, 255 /* threshold 2 */, 3 /* kernel */, false /* L2gradient */),
+        // new CloseOperation(10 /* structuring_element_size */),
+        // new OpenOperation(4 /* structuring_element_size */),
+        new DilateOperation(4 /* structuring_element_size */)
     }, is_debug) {
     // empty on purpose
 } 
