@@ -51,6 +51,10 @@ public:
   MetricsConfig(const MetricsConfig& that);
   MetricsConfig& operator=(const MetricsConfig& that);
 
+  inline const std::vector<detector::Circle>& getCirclesForImage(const std::string& image_id) const {
+    return _images_lookup.at(image_id);
+  }
+
   void addImage(const std::string& image, 
                 const std::vector<detector::Circle>& circles);
 

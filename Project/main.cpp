@@ -16,7 +16,9 @@ typedef config::MetricsConfig::Metric Metric;
 void OnPrintMetrics(const Metric& metric) {
         std::cout << std::endl;
 
-        std::cout << "The test set has " << metric.tp() + metric.fn() << " coins." << std::endl;
+        std::cout << "Overall confusion metrics" << std::endl
+                  << "The test set has " << metric.tp() + metric.fn() << " coins." 
+                  << std::endl;
 
         std::cout << std::endl;
 
@@ -68,15 +70,15 @@ void OnPrintDetectedCircles(const std::string& image_id,
 
         circle_id++;
     }
-
-    std::cout << std::endl;
 }
 
 void OnSaveReportImage(const std::string& file_path,
+                       const std::vector<detector::Circle>& config_circles,
                        const std::vector<detector::Circle>& detected_circles,
                        const std::string& override_output_prefix) {
     cv::Mat report_image = cv::imread(file_path);
     detector::Circle::drawAll(report_image, detected_circles);
+    detector::Circle::drawAll(report_image, config_circles, cv::Scalar(255, 0, 0), cv::Scalar(255, 0, 0));
 
     const auto& report_image_name = 
         utils::GetFileName(file_path) + "_report" 
@@ -99,13 +101,27 @@ void OnSaveReportImage(const std::string& file_path,
 void OnProcessFiles(const std::vector<std::string>& raw_files,
                     const std::string& output_directory,
                     const std::string& config_file,
-                    bool is_debug) {
+                    bool is_debug,
+                    bool draw_config) {
     if (!output_directory.empty() && !utils::IsDirectory(output_directory)) {
         throw std::runtime_error(output_directory + " is not a directory.");
     }
 
+    bool has_config = !config_file.empty();
+
+    config::MetricsConfig config;
+    config::MetricsConfig::Metric 
+        overall_confusion_metrics(0 /* tp */,
+                                  0 /* tn */,
+                                  0 /* fp */,
+                                  0 /* fn */);
+
     detector::CirclesTracker tracker;
     detector::Pipeline pipeline(is_debug /* is_debug */);
+
+    if (has_config) {
+        config = config::MetricsConfig::fromFile(config_file);
+    }
 
     std::vector<std::string> files;
 
@@ -134,17 +150,31 @@ void OnProcessFiles(const std::vector<std::string>& raw_files,
         const auto& detected_circles = pipeline.detect(file_path, image);
         tracker.addDetectedCircles(image_id, detected_circles);
 
+        std::vector<detector::Circle> config_circles;
+
         OnPrintDetectedCircles(image_id, file_path, detected_circles);
-        OnSaveReportImage(file_path, detected_circles, output_directory);
+        if (has_config) {
+            const auto& image_confusion_metric = 
+                config.getConfusionMetric(image_id, detected_circles);
+            overall_confusion_metrics = overall_confusion_metrics + image_confusion_metric;
+
+            std::cout << "ConfusionMetrics{"
+                << "tp=" << image_confusion_metric.tp()
+                << ",tn=" << image_confusion_metric.tn()
+                << ",fp=" << image_confusion_metric.fp()
+                << ",fn=" << image_confusion_metric.fn()
+                << "}" << std::endl << std::endl;
+
+            if (draw_config) {
+                config_circles = config.getCirclesForImage(image_id);
+            }
+        }
+
+        OnSaveReportImage(file_path, config_circles, detected_circles, output_directory);
     }
 
-    if (!config_file.empty()) {
-        std::cout << "P.S.: Calculating metrics may take a while." << std::endl;
-
-        const auto& config = config::MetricsConfig::fromFile(config_file);
-        const auto& metric = config.getConfusionMetric(tracker.imagesLut());
-
-        OnPrintMetrics(metric);
+    if (has_config) {
+        OnPrintMetrics(overall_confusion_metrics);
     }
 }
 
@@ -156,13 +186,14 @@ int main(int argc, char* argv[]) {
 
         if (args::DetectArgs(args, 
                 { args::FLAG_TITLE_UNSPECIFIED } /* mandatory flags */,
-                { "-d", "-o", "-c" } /* optional flags */)) {
+                { "-d", "-o", "-c", "-dc" } /* optional flags */)) {
             const auto& files = args::GetStringList(args, args::FLAG_TITLE_UNSPECIFIED);
             const auto& output_directory = args::GetString(args, "-o", "" /* default */);
             const auto& config_file = args::GetString(args, "-c", "" /* default */);
             const auto& is_debug = args::HasFlag(args, "-d");
+            const auto& draw_config = args::HasFlag(args, "-dc");
 
-            OnProcessFiles(files, output_directory, config_file, is_debug);
+            OnProcessFiles(files, output_directory, config_file, is_debug, draw_config);
         } else {
             std::cout << "Cannot find suitable command for the given flags." << std::endl;
         }

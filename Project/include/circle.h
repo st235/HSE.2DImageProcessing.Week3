@@ -9,8 +9,8 @@ namespace detector {
 
 class Circle {
 private:
-  uint32_t _x;
-  uint32_t _y;
+  int32_t _x;
+  int32_t _y;
   uint32_t _radius;
 
 public:
@@ -24,8 +24,8 @@ public:
   };
 
   static Circle fromVec3f(const cv::Vec3f& vector) {
-    return Circle(static_cast<uint32_t>(cvRound(vector[0])), 
-                  static_cast<uint32_t>(cvRound(vector[1])),
+    return Circle(static_cast<int32_t>(cvRound(vector[0])), 
+                  static_cast<int32_t>(cvRound(vector[1])),
                   static_cast<uint32_t>(cvRound(vector[2])));
   }
 
@@ -48,22 +48,26 @@ public:
     return fromVec3f(vector);
   }
 
-  static void draw(cv::Mat& canvas, const Circle& circle) {
+  static void draw(cv::Mat& canvas, const Circle& circle,
+                   const cv::Scalar& center_color = cv::Scalar(0, 255, 0),
+                   const cv::Scalar& radius_color = cv::Scalar(0, 0, 255)) {
     auto center = circle.center();
     auto radius = circle.radius();
     // draw the circle center
-    cv::circle(canvas, center, 3 /* radius */, cv::Scalar(0, 255, 0) /* color */, -1 /* thickness */, 8 /* lineType */, 0 /* shift */);
+    cv::circle(canvas, center, 3 /* radius */, center_color /* color */, -1 /* thickness */, 8 /* lineType */, 0 /* shift */);
     // draw the circle outline
-    cv::circle(canvas, center, radius, cv::Scalar(0, 0, 255) /* color */, 3 /* thickness */, 8 /* lineType */, 0 /* shift */);
+    cv::circle(canvas, center, radius, radius_color /* color */, 3 /* thickness */, 8 /* lineType */, 0 /* shift */);
   }
 
-  static void drawAll(cv::Mat& canvas, const std::vector<Circle>& circles) {
+  static void drawAll(cv::Mat& canvas, const std::vector<Circle>& circles,
+                      const cv::Scalar& center_color = cv::Scalar(0, 255, 0),
+                      const cv::Scalar& radius_color = cv::Scalar(0, 0, 255)) {
     for (const auto& circle: circles) {
-        Circle::draw(canvas, circle);
+        Circle::draw(canvas, circle, center_color, radius_color);
     }
   }
 
-  Circle(uint32_t x, uint32_t y, uint32_t radius): _x(x), _y(y), _radius(radius) {
+  Circle(int32_t x, int32_t y, uint32_t radius): _x(x), _y(y), _radius(radius) {
     // empty on purpose
   }
 
@@ -87,15 +91,18 @@ public:
             && _radius == that._radius);
   }
 
-  bool isWithin(uint32_t x, uint32_t y) const {
-    return std::sqrt(std::pow(_x - x, 2) + std::pow(_y - y, 2)) <= _radius;
+  bool isWithin(int32_t x, int32_t y) const {
+    return std::sqrt(std::pow(_x - x, 2) + std::pow(_y - y, 2))
+      <= static_cast<int32_t>(_radius);
   }
 
   uint32_t findIntersectionArea(const Circle& that) const {
     uint32_t intersectionArea = 0;
 
-    for (uint32_t y = _y - _radius; y <= _y + _radius; y++) {
-      for (uint32_t x = _x - _radius; x <= _x + _radius; x++) {
+    int32_t radius = static_cast<int32_t>(_radius);
+
+    for (int32_t y = _y - radius; y <= _y + radius; y++) {
+      for (int32_t x = _x - radius; x <= _x + radius; x++) {
         if (!isWithin(x, y)) {
           continue;
         }
@@ -111,9 +118,10 @@ public:
 
   uint32_t findUnionArea(const Circle& that) const {
     uint32_t unionArea = 0;
+    int32_t my_radius = static_cast<int32_t>(_radius);
 
-    for (uint32_t y = _y - _radius; y <= _y + _radius; y++) {
-      for (uint32_t x = _x - _radius; x <= _x + _radius; x++) {
+    for (int32_t y = _y - my_radius; y <= _y + my_radius; y++) {
+      for (int32_t x = _x - my_radius; x <= _x + my_radius; x++) {
         if (!isWithin(x, y)) {
           continue;
         }
@@ -122,8 +130,10 @@ public:
       }
     }
 
-    for (uint32_t y = that._y - that._radius; y <= that._y + that._radius; y++) {
-      for (uint32_t x = that._x - that._radius; x <= that._x + that._radius; x++) {
+  int32_t that_radius = static_cast<int32_t>(that._radius);
+
+    for (int32_t y = that._y - that_radius; y <= that._y + that_radius; y++) {
+      for (int32_t x = that._x - that_radius; x <= that._x + that_radius; x++) {
         if (!that.isWithin(x, y)) {
           continue;
         }
@@ -139,8 +149,8 @@ public:
     return static_cast<double>(this->findIntersectionArea(that)) / this->findUnionArea(that);
   }
 
-  inline uint32_t x() const { return _x; }
-  inline uint32_t y() const { return _y; }
+  inline int32_t x() const { return _x; }
+  inline int32_t y() const { return _y; }
 
   inline cv::Point center() const { return cv::Point(_x, _y); }
 
