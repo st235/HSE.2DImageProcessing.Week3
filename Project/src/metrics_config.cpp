@@ -137,7 +137,7 @@ MetricsConfig::Metric MetricsConfig::getConfusionMetric(
             }
         }
 
-        if (max_iou >= 0.5) {
+        if (max_iou >= 0.6) {
             true_positive += 1;
             expected_circles.erase(max_iou_circle);
         } else {
