@@ -4,7 +4,6 @@
 
 #include "args_parser.h"
 #include "circle.h"
-#include "circles_tracker.h"
 #include "file_utils.h"
 #include "pipeline.h"
 #include "metrics_config.h"
@@ -116,7 +115,6 @@ void OnProcessFiles(const std::vector<std::string>& raw_files,
                                   0 /* fp */,
                                   0 /* fn */);
 
-    detector::CirclesTracker tracker;
     detector::Pipeline pipeline(is_debug /* is_debug */);
 
     if (has_config) {
@@ -148,7 +146,6 @@ void OnProcessFiles(const std::vector<std::string>& raw_files,
         const auto& image_id = utils::GetFileNameWithExtension(file_path);
 
         const auto& detected_circles = pipeline.detect(file_path, image);
-        tracker.addDetectedCircles(image_id, detected_circles);
 
         std::vector<detector::Circle> config_circles;
 
